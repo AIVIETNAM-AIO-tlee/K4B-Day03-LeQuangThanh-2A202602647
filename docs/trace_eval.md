@@ -14,7 +14,7 @@
 | **2. Tool Interaction** | 4 / 5 | Hệ thống cần tương tác với MCP Server và các nguồn dữ liệu bên ngoài như hệ thống ticket IT. Agent có thể sử dụng các Tool như `ticket_query` để tra cứu sự cố và `create_ticket` để thực hiện hành động. Tuy nhiên, số lượng Tool và hệ thống bên ngoài hiện chưa lớn nên phù hợp với mức 4/5 thay vì 5/5. |
 | **3. Dynamic Decision** | 5 / 5 | Bước tiếp theo của Agent phụ thuộc trực tiếp vào kết quả quan sát từ Tool trước đó. Ví dụ, sau khi ticket_query trả về kết quả, Agent phải quyết định: nếu đã có ticket đang xử lý thì thông báo ticket hiện tại; nếu chưa có thì tiếp tục gọi `create_ticket`. Do đó, Agent không chỉ thực hiện một workflow cố định mà phải tự quyết định hành động tiếp theo dựa trên trạng thái thực tế. |
 | **4. Long Horizon Goal** | 3 / 5 | Agent có thể cần duy trì mục tiêu xuyên suốt qua nhiều bước, chẳng hạn từ lúc tiếp nhận sự cố → kiểm tra ticket → xử lý yêu cầu → tạo ticket → phản hồi người dùng. Tuy nhiên, các tác vụ hiện tại thường hoàn thành trong một phiên ngắn và số bước chưa quá dài, nên mức độ Long Horizon chỉ ở mức trung bình. |
-| **TỔNG ĐIỂM AGENTIC FIT** | **16 / 20** | *Nếu tổng điểm > 12/20: Bài toán rất phù hợp triển khai Agentic System.* |
+| **TỔNG ĐIỂM AGENTIC FIT** | **16 / 20** | Bài toán có mức độ phù hợp cao với Agentic System, đặc biệt nhờ khả năng sử dụng Tool và đưa ra quyết định động dựa trên Observation. |
 
 ---
 
