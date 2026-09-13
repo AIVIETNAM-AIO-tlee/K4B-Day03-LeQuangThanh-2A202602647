@@ -34,29 +34,74 @@ class MockOfflineProvider(BaseLLMProvider):
     def generate(self, prompt: str, system_prompt: str = "") -> str:
         return f"[Mock Chatbot Response]: Xin chào! Tôi đã nhận được câu hỏi '{prompt}'. (Chế độ Chatbot không có Tool tra cứu dữ liệu thời gian thực)."
 
-    def generate_with_tools(self, prompt: str, tools_schema: List[Dict[str, Any]], system_prompt: str = "") -> Dict[str, Any]:
+    def generate_with_tools(
+    self,
+    prompt: str,
+    tools_schema: List[Dict[str, Any]],
+    system_prompt: str = ""
+) -> Dict[str, Any]:
+
         prompt_lower = prompt.lower()
-        
+
         # Mô phỏng nhận diện intent gọi Tool
-        if "sv2026001" in prompt_lower and "đặt lịch" in prompt_lower:
+
+        # 1. Tạo ticket hỗ trợ IT
+        if (
+            ("tạo ticket" in prompt_lower
+            or "tạo một ticket" in prompt_lower
+            or "yêu cầu hỗ trợ" in prompt_lower)
+            and ("vpn" in prompt_lower
+                or "mạng" in prompt_lower
+                or "đăng nhập" in prompt_lower)
+        ):
             return {
                 "type": "tool_call",
-                "tool_name": "schedule_appointment",
-                "arguments": {"student_id": "SV2026001", "datetime_str": "14:00 15/09/2026", "advisor_name": "PGS.TS Nguyễn Văn A"},
-                "thought": "Người dùng yêu cầu đặt lịch hẹn tư vấn cho sinh viên SV2026001. Tôi sẽ gọi tool schedule_appointment."
+                "tool_name": "create_ticket",
+                "arguments": {
+                    "user_id": "USR001",
+                    "issue_type": "VPN",
+                    "description": "Không thể đăng nhập vào VPN của công ty.",
+                    "priority": "HIGH"
+                },
+                "thought": (
+                    "Người dùng đang yêu cầu tạo một ticket hỗ trợ IT "
+                    "cho sự cố VPN. Tôi sẽ gọi tool create_ticket."
+                )
             }
-        elif "sv2026001" in prompt_lower or "tra cứu" in prompt_lower:
+
+        # 2. Tra cứu ticket
+        elif "inc2026001" in prompt_lower or (
+            "tra cứu" in prompt_lower and "ticket" in prompt_lower
+        ):
             return {
                 "type": "tool_call",
-                "tool_name": "academic_query",
-                "arguments": {"student_id": "SV2026001"},
-                "thought": "Người dùng muốn tra cứu thông tin học vụ của sinh viên SV2026001. Tôi sẽ gọi tool academic_query."
+                "tool_name": "ticket_query",
+                "arguments": {
+                    "ticket_id": "INC2026001"
+                },
+                "thought": (
+                    "Người dùng muốn tra cứu thông tin của một ticket IT. "
+                    "Tôi sẽ gọi tool ticket_query với mã INC2026001."
+                )
             }
+
+        # 3. Câu hỏi kỹ thuật chung
         else:
             return {
                 "type": "text",
-                "content": f"[Mock Agent Response]: Xin chào! Quy chế học vụ VinUni yêu cầu sinh viên tích lũy tối thiểu 120 tín chỉ và duy trì GPA trên 2.0 để tốt nghiệp.",
-                "thought": "Câu hỏi chung về quy chế học vụ, trả lời trực tiếp không cần gọi Tool."
+                "content": (
+                    "[Mock Agent Response]: "
+                    "Nếu không thể kết nối Wi-Fi, bạn có thể kiểm tra "
+                    "trạng thái Wi-Fi trên thiết bị, thử kết nối lại mạng, "
+                    "khởi động lại thiết bị và kiểm tra xem các thiết bị "
+                    "khác có gặp cùng sự cố hay không. "
+                    "Nếu sự cố vẫn tiếp diễn, bạn có thể tạo một ticket "
+                    "hỗ trợ IT."
+                ),
+                "thought": (
+                    "Đây là câu hỏi kỹ thuật chung có thể trả lời bằng "
+                    "kiến thức có sẵn, không cần gọi Tool."
+                )
             }
 
 

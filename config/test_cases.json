@@ -1,0 +1,44 @@
+[
+  {
+    "id": "TC01",
+    "type": "direct_query",
+    "question": "Tôi không thể kết nối Wi-Fi, tôi nên kiểm tra những gì?",
+    "expected_behavior": "Agent trả lời trực tiếp bằng kiến thức hỗ trợ kỹ thuật chung, không cần gọi bất kỳ Tool nào.",
+    "complexity": "Low"
+  },
+  {
+    "id": "TC02",
+    "type": "ticket_query",
+    "question": "Hãy tra cứu thông tin ticket IT với mã INC2026001.",
+    "expected_behavior": "Agent nhận diện nhu cầu tra cứu ticket và tự động phát sinh Tool Call 'ticket_query' với mã ticket INC2026001, sau đó sử dụng kết quả Tool để trả lời người dùng.",
+    "complexity": "Medium"
+  },
+  {
+    "id": "TC03",
+    "type": "ticket_creation",
+    "question": "Tôi không thể đăng nhập vào VPN của công ty. Hãy tạo một yêu cầu hỗ trợ IT cho tôi.",
+    "expected_behavior": "Agent nhận diện vấn đề liên quan đến VPN, thu thập hoặc suy luận các thông tin cần thiết và tự động phát sinh Tool Call 'create_ticket' với nội dung sự cố phù hợp, bao gồm loại sự cố, mô tả và thông tin người dùng.",
+    "complexity": "Medium"
+  },
+  {
+    "id": "TC04",
+    "type": "multi_step_reasoning",
+    "question": "Tôi không thể đăng nhập vào VPN. Hãy kiểm tra xem tài khoản của tôi có đang bị khóa hoặc có ticket nào liên quan đến sự cố này không. Nếu tài khoản bình thường và chưa có ticket đang xử lý, hãy tạo một ticket hỗ trợ IT mới cho tôi.",
+    "expected_behavior": "Agent thực hiện chuỗi suy luận ReAct đa bước: trước tiên tra cứu trạng thái tài khoản và/hoặc các ticket liên quan, phân tích kết quả, sau đó quyết định có cần tạo ticket mới hay không. Agent chỉ gọi 'create_ticket' nếu các điều kiện phù hợp được thỏa mãn.",
+    "complexity": "High"
+  },
+  {
+    "id": "TC05",
+    "type": "edge_case_handling",
+    "question": "Hãy tra cứu ticket IT với mã INC9999999.",
+    "expected_behavior": "Agent gọi Tool 'ticket_query' với mã INC9999999. Nếu Tool trả về NOT_FOUND, Agent phải thông báo rằng không tìm thấy ticket tương ứng và không được bịa đặt trạng thái, nội dung hoặc thông tin của ticket.",
+    "complexity": "Medium"
+  },
+  {
+    "id": "TC06",
+    "type": "ticket_creation",
+    "question": "Tôi không thể đăng nhập vào VPN. Hãy kiểm tra xem đã có ticket nào đang xử lý cho sự cố này chưa. Nếu chưa có, hãy tạo một ticket mới, đây là ID của tôi: USR001.",
+    "expected_behavior": "Agent phải kiểm tra thông tin ticket trước. Nếu phát hiện ticket đang được xử lý, Agent thông báo ticket hiện có và không tạo ticket trùng. Nếu không tìm thấy ticket phù hợp, Agent phải gọi Tool 'create_ticket' để tạo yêu cầu hỗ trợ mới.",
+    "complexity": "High"
+  }
+]

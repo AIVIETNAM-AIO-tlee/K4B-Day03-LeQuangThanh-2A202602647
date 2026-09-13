@@ -11,19 +11,18 @@ from typing import Dict, Any
 # ==============================================================================
 
 TOOLS_SCHEMA = [
-    # Tool 1: Đã được định nghĩa mẫu sẵn cho Học viên tham khảo
     {
-        "name": "academic_query",
-        "description": "Tra cứu hồ sơ và thông tin học vụ của sinh viên VinUni bằng mã sinh viên.",
+        "name": "ticket_query",
+        "description": "Tra cứu thông tin ticket hỗ trợ IT bằng mã ticket.",
         "parameters": {
             "type": "object",
             "properties": {
-                "student_id": {
+                "ticket_id": {
                     "type": "string",
-                    "description": "Mã sinh viên cần tra cứu (ví dụ: 'SV2026001')"
+                    "description": "Mã ticket cần tra cứu (ví dụ: 'INC2026001')"
                 }
             },
-            "required": ["student_id"]
+            "required": ["ticket_id"]
         }
     },
     
@@ -38,15 +37,35 @@ TOOLS_SCHEMA = [
     # 3. Khai báo danh sách các trường bắt buộc (required).
     # --------------------------------------------------------------------------
     {
-        "name": "schedule_appointment",
-        "description": "Đặt lịch hẹn tư vấn học vụ với Cố vấn học tập VinUni.",
+        "name": "create_ticket",
+        "description": "Tạo yêu cầu hỗ trợ kỹ thuật IT cho người dùng.",
         "parameters": {
             "type": "object",
             "properties": {
-                # TODO 1.2: Khai báo các thuộc tính tham số cho Tool tại đây...
+                "user_id": {
+                    "type": "string",
+                    "description": "Mã người dùng cần tạo yêu cầu hỗ trợ (ví dụ: 'USR001')"
+                },
+                "issue_type": {
+                    "type": "string",
+                    "description": "Loại sự cố IT, ví dụ: 'network', 'account', 'vpn', 'hardware', 'software'"
+                },
+                "description": {
+                    "type": "string",
+                    "description": "Mô tả chi tiết vấn đề người dùng đang gặp phải"
+                },
+                "priority": {
+                    "type": "string",
+                    "description": "Mức độ ưu tiên của ticket: 'LOW', 'MEDIUM', 'HIGH', hoặc 'CRITICAL'"
+                }
             },
-            "required": [] # TODO 1.2: Khai báo danh sách các trường bắt buộc tại đây...
-        }
+            "required": [
+                "user_id",
+                "issue_type",
+                "description",
+                "priority"
+            ]
+        },
     }
 ]
 
@@ -54,63 +73,162 @@ TOOLS_SCHEMA = [
 # 2. MÔ PHỎNG DỮ LIỆU & HÀM THỰC THI TOOL (EXECUTION LAYER)
 # ==============================================================================
 
-MOCK_DATABASE = {
-    "SV2026001": {
-        "full_name": "Nguyễn Văn An",
-        "class": "AI-K4",
-        "gpa": 3.85,
-        "email": "an.nv@vinuni.edu.vn",
-        "status": "Đang học",
-        "advisor": "PGS.TS Nguyễn Văn A"
+MOCK_TICKETS = {
+    "INC2026001": {
+        "ticket_id": "INC2026001",
+        "user_id": "USR001",
+        "issue_type": "vpn",
+        "description": "Không thể đăng nhập vào hệ thống VPN của công ty.",
+        "status": "IN_PROGRESS",
+        "priority": "HIGH",
+        "created_at": "2026-09-10 09:30",
+        "assigned_to": "IT Support Team"
     },
-    "SV2026002": {
+
+    "INC2026002": {
+        "ticket_id": "INC2026002",
+        "user_id": "USR002",
+        "issue_type": "network",
+        "description": "Không thể kết nối Internet tại văn phòng tầng 5.",
+        "status": "OPEN",
+        "priority": "MEDIUM",
+        "created_at": "2026-09-11 14:15",
+        "assigned_to": "Network Team"
+    },
+
+    "INC2026003": {
+        "ticket_id": "INC2026003",
+        "user_id": "USR001",
+        "issue_type": "account",
+        "description": "Tài khoản email công ty bị khóa sau nhiều lần đăng nhập sai.",
+        "status": "RESOLVED",
+        "priority": "HIGH",
+        "created_at": "2026-09-08 10:20",
+        "assigned_to": "IT Service Desk"
+    }
+}
+
+MOCK_USERS = {
+    "USR001": {
+        "user_id": "USR001",
+        "full_name": "Nguyễn Văn An",
+        "email": "an.nguyen@company.vn",
+        "department": "Engineering",
+        "account_status": "ACTIVE"
+    },
+
+    "USR002": {
+        "user_id": "USR002",
         "full_name": "Trần Thị Bình",
-        "class": "AI-K4",
-        "gpa": 3.60,
-        "email": "binh.tt@vinuni.edu.vn",
-        "status": "Đang học",
-        "advisor": "TS. Lê Thị B"
+        "email": "binh.tran@company.vn",
+        "department": "Finance",
+        "account_status": "ACTIVE"
+    },
+
+    "USR003": {
+        "user_id": "USR003",
+        "full_name": "Lê Minh Thành",
+        "email": "thanh.le@company.vn",
+        "department": "Human Resources",
+        "account_status": "LOCKED"
     }
 }
 
 
-def execute_academic_query(student_id: str) -> str:
-    """Thực thi tra cứu học vụ theo mã sinh viên"""
-    student = MOCK_DATABASE.get(student_id.strip().upper())
-    if student:
+def execute_ticket_query(ticket_id: str) -> str:
+    """Thực thi tra cứu thông tin ticket IT."""
+
+    ticket_id = ticket_id.strip().upper()
+
+    ticket = MOCK_TICKETS.get(ticket_id)
+
+    if ticket:
         return json.dumps({
             "status": "SUCCESS",
-            "student_id": student_id,
-            "data": student
+            "ticket_id": ticket_id,
+            "data": ticket
         }, ensure_ascii=False)
-    else:
+
+    return json.dumps({
+        "status": "NOT_FOUND",
+        "message": f"Không tìm thấy ticket có mã '{ticket_id}'"
+    }, ensure_ascii=False)
+
+
+def execute_create_ticket(
+    user_id: str,
+    issue_type: str,
+    description: str,
+    priority: str
+) -> str:
+    """Thực thi tạo ticket hỗ trợ IT."""
+
+    user_id = user_id.strip().upper()
+    issue_type = issue_type.strip().lower()
+    priority = priority.strip().upper()
+
+    # Kiểm tra user có tồn tại hay không
+    user = MOCK_USERS.get(user_id)
+
+    if not user:
         return json.dumps({
-            "status": "NOT_FOUND",
-            "message": f"Không tìm thấy dữ liệu sinh viên có mã '{student_id}'"
+            "status": "USER_NOT_FOUND",
+            "message": f"Không tìm thấy người dùng có mã '{user_id}'"
         }, ensure_ascii=False)
 
+    # Validate priority
+    valid_priorities = {"LOW", "MEDIUM", "HIGH", "CRITICAL"}
 
-def execute_schedule_appointment(student_id: str, datetime_str: str, advisor_name: str = "PGS.TS Nguyễn Văn A") -> str:
-    """Thực thi đặt lịch hẹn tư vấn học vụ"""
+    if priority not in valid_priorities:
+        return json.dumps({
+            "status": "INVALID_PRIORITY",
+            "message": (
+                f"Mức độ ưu tiên '{priority}' không hợp lệ. "
+                f"Giá trị hợp lệ: {sorted(valid_priorities)}"
+            )
+        }, ensure_ascii=False)
+
+    # Sinh ticket ID giả lập
+    ticket_id = f"INC2026{len(MOCK_TICKETS) + 1:03d}"
+
+    new_ticket = {
+        "ticket_id": ticket_id,
+        "user_id": user_id,
+        "issue_type": issue_type,
+        "description": description,
+        "status": "OPEN",
+        "priority": priority,
+        "created_at": "2026-09-13 14:00",
+        "assigned_to": "IT Service Desk"
+    }
+
+    # Lưu vào mock database
+    MOCK_TICKETS[ticket_id] = new_ticket
+
     return json.dumps({
         "status": "SUCCESS",
-        "booking_id": f"BK-{student_id}-99",
-        "student_id": student_id,
-        "datetime": datetime_str,
-        "advisor": advisor_name,
-        "message": f"Đặt lịch thành công cho sinh viên {student_id} với {advisor_name} vào lúc {datetime_str}."
+        "ticket_id": ticket_id,
+        "data": new_ticket,
+        "message": (
+            f"Tạo ticket thành công cho người dùng {user_id}. "
+            f"Mã ticket: {ticket_id}."
+        )
     }, ensure_ascii=False)
 
 
 # Router gọi tool thực tế
 TOOL_ROUTER = {
-    "academic_query": execute_academic_query,
-    "schedule_appointment": execute_schedule_appointment
+    "ticket_query": execute_ticket_query,
+    "create_ticket": execute_create_ticket,
 }
 
 def dispatch_tool_call(tool_name: str, arguments: Dict[str, Any]) -> str:
     """Hàm trung chuyển thực thi tool"""
     if tool_name in TOOL_ROUTER:
+        if tool_name == "ticket_query":
+            return execute_ticket_query(**arguments)
+        elif tool_name == "create_ticket":
+            return execute_create_ticket(**arguments)
         try:
             return TOOL_ROUTER[tool_name](**arguments)
         except Exception as e:

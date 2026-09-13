@@ -17,7 +17,7 @@ if sys.stdout.encoding != 'utf-8':
     except Exception:
         pass
 
-from mcp_server import MCPAcademicServer
+from mcp_server import MCPITHelpdeskServer
 from prompts import (
     CHATBOT_BASELINE_PROMPT,
     REACT_AGENT_SYSTEM_PROMPT,
@@ -61,33 +61,56 @@ def run_baseline_chatbot(user_query: str, provider):
     print(f"🤖 Chatbot phản hồi:\n{response}")
 
 
-def run_react_agent(user_query: str, provider, mcp_server: MCPAcademicServer) -> list:
+
+def run_react_agent(user_query: str, provider, mcp_server: MCPITHelpdeskServer) -> list:
     """
-    [REACT AGENT LOOP] Thực thi vòng lặp Thought -> Action -> Observation với MCP Server
+    [REACT AGENT LOOP] Thực thi vòng lặp Thought -> Action -> Observation
+    với MCP Server cho hệ thống IT Helpdesk.
+
     Trả về danh sách trace log của phiên thực thi.
     """
     print(f"\n🤖 [REACT AGENT] Câu hỏi: {user_query}")
-    
+
     step = 0
     trace_logs = []
     tools_list = mcp_server.list_tools()
-    
+
     while step < MAX_ITERATIONS:
         step += 1
         step_start_time = time.time()
-        print(f"\n--- 🔄 Vòng lặp ReAct Loop (Step {step}/{MAX_ITERATIONS}) ---")
-        
+
+        print(
+            f"\n--- 🔄 Vòng lặp ReAct Loop "
+            f"(Step {step}/{MAX_ITERATIONS}) ---"
+        )
+
         # Gọi LLM với Native Tool Calling Specs
-        llm_response = provider.generate_with_tools(user_query, tools_list, system_prompt=REACT_AGENT_SYSTEM_PROMPT)
-        latency_ms = round((time.time() - step_start_time) * 1000, 2)
-        
-        thought = llm_response.get("thought", "Đang suy luận...")
+        llm_response = provider.generate_with_tools(
+            user_query,
+            tools_list,
+            system_prompt=REACT_AGENT_SYSTEM_PROMPT
+        )
+
+        latency_ms = round(
+            (time.time() - step_start_time) * 1000,
+            2
+        )
+
+        thought = llm_response.get(
+            "thought",
+            "Đang suy luận..."
+        )
+
         print(f"🧠 [Thought]: {thought}")
-        
-        # Trường hợp 1: LLM quyết định trả lời bằng văn bản trực tiếp
+
+        # ==========================================================
+        # TRƯỜNG HỢP 1: LLM trả lời trực tiếp
+        # ==========================================================
         if llm_response.get("type") == "text":
             final_content = llm_response.get("content", "")
+
             print(f"🏁 [Final Answer]: {final_content}")
+
             trace_logs.append({
                 "step": step,
                 "query": user_query,
@@ -96,45 +119,154 @@ def run_react_agent(user_query: str, provider, mcp_server: MCPAcademicServer) ->
                 "output": final_content,
                 "latency_ms": latency_ms
             })
+
             break
-            
-        # Trường hợp 2: LLM đề xuất gọi Tool (Action)
+
+        # ==========================================================
+        # TRƯỜNG HỢP 2: LLM đề xuất gọi Tool
+        # ==========================================================
         elif llm_response.get("type") == "tool_call":
+
             tool_name = llm_response.get("tool_name")
             arguments = llm_response.get("arguments", {})
-            
-            print(f"🛠️ [Action Proposed]: {tool_name}({arguments})")
-            
+
+            print(
+                f"🛠️ [Action Proposed]: "
+                f"{tool_name}({arguments})"
+            )
+
+            # ------------------------------------------------------
             # Thực thi Tool qua MCP Server
-            mcp_result = mcp_server.call_tool(tool_name, arguments)
+            # ------------------------------------------------------
+            mcp_result = mcp_server.call_tool(
+                tool_name,
+                arguments
+            )
+
             obs_data = mcp_result.get("result", {})
-            
+
+            # ------------------------------------------------------
+            # Observation rỗng
+            # ------------------------------------------------------
             if not obs_data:
-                print(f"👁️ [Observation từ MCP Server]: {{}}")
-                print(f"⚠️ [CHÚ Ý]: MCP Server trả về kết quả rỗng! Học viên cần hoàn thành TODO 2.1 trong 'src/mcp_server.py'.")
-                final_answer = "Chưa thể trả lời chi tiết do chưa nhận được dữ liệu từ MCP Server (hãy hoàn thành TODO 2.1)."
+                print(
+                    "👁️ [Observation từ MCP Server]: {}"
+                )
+
+                print(
+                    "⚠️ [CHÚ Ý]: MCP Server trả về kết quả rỗng!"
+                )
+
+                final_answer = (
+                    "Chưa thể xử lý yêu cầu vì MCP Server "
+                    "không trả về dữ liệu."
+                )
+
             else:
-                obs_str = json.dumps(obs_data, ensure_ascii=False)
-                print(f"👁️ [Observation từ MCP Server]: {obs_str}")
-                
-                # Tổng hợp Final Answer từ kết quả Observation thực tế
-                if obs_data.get("status") == "SUCCESS":
-                    if "data" in obs_data:
-                        d = obs_data["data"]
+                obs_str = json.dumps(
+                    obs_data,
+                    ensure_ascii=False
+                )
+
+                print(
+                    f"👁️ [Observation từ MCP Server]: "
+                    f"{obs_str}"
+                )
+
+                # ==================================================
+                # XỬ LÝ KẾT QUẢ TOOL
+                # ==================================================
+
+                status = obs_data.get("status")
+
+                # --------------------------------------------------
+                # SUCCESS
+                # --------------------------------------------------
+                if status == "SUCCESS":
+
+                    # ==============================================
+                    # Ticket Query
+                    # ==============================================
+                    if tool_name == "ticket_query":
+
+                        ticket = obs_data.get("data", {})
+
+                        if ticket:
+                            final_answer = (
+                                f"Ticket {ticket.get('ticket_id', '')}: "
+                                f"{ticket.get('issue_type', '')}. "
+                                f"Trạng thái: "
+                                f"{ticket.get('status', '')}. "
+                                f"Mức độ ưu tiên: "
+                                f"{ticket.get('priority', '')}. "
+                                f"Mô tả: "
+                                f"{ticket.get('description', '')}. "
+                                f"Được phân công cho: "
+                                f"{ticket.get('assigned_team', '')}."
+                            )
+                        else:
+                            final_answer = (
+                                "Đã tìm thấy ticket nhưng "
+                                "không có dữ liệu chi tiết."
+                            )
+
+                    # ==============================================
+                    # Create Ticket
+                    # ==============================================
+                    elif tool_name == "create_ticket":
+
                         final_answer = (
-                            f"Kết quả tra cứu cho sinh viên {obs_data.get('student_id', '')} ({d.get('full_name', '')}): "
-                            f"Lớp {d.get('class', '')}, GPA: {d.get('gpa', '')}, Email: {d.get('email', '')}, "
-                            f"Trạng thái: {d.get('status', '')}, Cố vấn: {d.get('advisor', '')}."
+                            f"Đã tạo ticket hỗ trợ IT thành công. "
+                            f"Mã ticket: "
+                            f"{obs_data.get('ticket_id', '')}. "
+                            f"Loại sự cố: "
+                            f"{obs_data.get('issue_type', '')}. "
+                            f"Mức độ ưu tiên: "
+                            f"{obs_data.get('priority', '')}. "
+                            f"Trạng thái: "
+                            f"{obs_data.get('status', '')}."
                         )
-                    elif "message" in obs_data:
-                        final_answer = obs_data["message"]
+
+                    # ==============================================
+                    # Tool khác
+                    # ==============================================
                     else:
-                        final_answer = f"Đã hoàn tất xử lý qua MCP Server: {json.dumps(obs_data, ensure_ascii=False)}"
-                elif obs_data.get("status") == "NOT_FOUND":
-                    final_answer = obs_data.get("message", "Không tìm thấy thông tin sinh viên yêu cầu.")
+                        final_answer = (
+                            "Đã hoàn tất xử lý qua MCP Server: "
+                            + json.dumps(
+                                obs_data,
+                                ensure_ascii=False
+                            )
+                        )
+
+                # --------------------------------------------------
+                # NOT FOUND
+                # --------------------------------------------------
+                elif status == "NOT_FOUND":
+
+                    final_answer = obs_data.get(
+                        "message",
+                        "Không tìm thấy thông tin yêu cầu."
+                    )
+
+                # --------------------------------------------------
+                # EXECUTION ERROR / UNKNOWN TOOL / OTHER
+                # --------------------------------------------------
                 else:
-                    final_answer = f"Phản hồi từ công cụ: {json.dumps(obs_data, ensure_ascii=False)}"
-            
+
+                    final_answer = (
+                        "Không thể hoàn tất yêu cầu. "
+                        "Phản hồi từ công cụ: "
+                        + json.dumps(
+                            obs_data,
+                            ensure_ascii=False
+                        )
+                    )
+
+            # ======================================================
+            # GHI TRACE TOOL EXECUTION
+            # ======================================================
+
             trace_logs.append({
                 "step": step,
                 "query": user_query,
@@ -144,19 +276,33 @@ def run_react_agent(user_query: str, provider, mcp_server: MCPAcademicServer) ->
                 "observation": obs_data,
                 "latency_ms": latency_ms
             })
-            
-            # Kết thúc vòng lặp sau khi hoàn tất Observation và xuất Final Answer
-            print(f"🧠 [Thought]: Đã nhận được dữ liệu từ MCP Server. Tổng hợp kết quả phản hồi.")
-            print(f"🏁 [Final Answer]: {final_answer}")
-            
+
+            # ======================================================
+            # FINAL ANSWER
+            # ======================================================
+
+            print(
+                "🧠 [Thought]: "
+                "Đã nhận được Observation từ MCP Server. "
+                "Tổng hợp kết quả."
+            )
+
+            print(
+                f"🏁 [Final Answer]: {final_answer}"
+            )
+
             trace_logs.append({
                 "step": step + 1,
                 "query": user_query,
                 "action_type": "FINAL_ANSWER",
-                "thought": "Tổng hợp kết quả từ MCP Server thành công.",
+                "thought": (
+                    "Tổng hợp kết quả từ MCP Server "
+                    "thành công."
+                ),
                 "output": final_answer,
                 "latency_ms": 10.0
             })
+
             break
 
     return trace_logs
@@ -168,7 +314,7 @@ if __name__ == "__main__":
     print("==========================================================")
     
     provider = get_llm_provider()
-    mcp_server = MCPAcademicServer()
+    mcp_server = MCPITHelpdeskServer()
     
     print(f"🔌 LLM Provider: {provider.__class__.__name__}")
     print(f"🌐 MCP Server: {mcp_server.server_name}\n")
@@ -179,13 +325,14 @@ if __name__ == "__main__":
     if "--interactive" in sys.argv:
         print("🎮 [INTERACTIVE MODE] Trò chuyện trực tiếp với ReAct Agent:")
         print("💡 Gợi ý câu hỏi thử nghiệm:")
-        print("   - Câu hỏi chung: 'Quy chế học vụ VinUni yêu cầu bao nhiêu tín chỉ?'")
-        print("   - Tra cứu học vụ: 'Hãy tra cứu thông tin học vụ của sinh viên SV2026001'")
-        print("   - Đặt lịch hẹn: 'Đặt lịch hẹn tư vấn cho SV2026001 vào 14:00 ngày 15/09/2026'")
-        print("   - Gõ 'exit' hoặc 'quit' để kết thúc phiên trò chuyện.\n")
+        print("- Câu hỏi chung: 'Tôi không thể kết nối Wi-Fi, tôi nên kiểm tra những gì?'")
+        print("- Tra cứu ticket: 'Hãy tra cứu thông tin ticket IT với mã INC2026001'")
+        print("- Tạo ticket: 'Tôi không thể đăng nhập vào VPN. Hãy tạo một yêu cầu hỗ trợ IT cho tôi.'")
+        print("- Multi-step: 'Tôi không thể đăng nhập VPN. Hãy kiểm tra xem đã có ticket nào đang xử lý cho sự cố này chưa. Nếu chưa có, hãy tạo một ticket mới.'")
+        print("- Gõ 'exit' hoặc 'quit' để kết thúc phiên trò chuyện.\n")
         while True:
             try:
-                user_input = input("👤 Sinh viên hỏi: ").strip()
+                user_input = input("👤 Người dùng hỏi: ").strip()
                 if not user_input or user_input.lower() in ["exit", "quit"]:
                     print("👋 Tạm biệt! Kết thúc phiên trò chuyện.")
                     break
