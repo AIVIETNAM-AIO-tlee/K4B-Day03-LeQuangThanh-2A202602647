@@ -312,7 +312,6 @@ if __name__ == "__main__":
     print("==========================================================")
     print("🏫 VINUNI AI COURSE - DAY 03 LAB: CHATBOT VS REACT AGENT")
     print("==========================================================")
-    import streamlit as st
     provider = get_llm_provider()
     mcp_server = MCPITHelpdeskServer()
     
