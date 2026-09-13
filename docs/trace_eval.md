@@ -31,8 +31,8 @@ Dán 1 đoạn trích xuất log tiêu biểu từ file `docs/trace_waterfall.js
     "query": "Tôi không thể kết nối Wi-Fi, tôi nên kiểm tra những gì?",
     "action_type": "FINAL_ANSWER",
     "thought": "Gemini phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
-    "output": "Chào bạn! Khi gặp sự cố không thể kết nối Wi-Fi, bạn có thể thực hiện theo các bước kiểm tra cơ bản sau đây:\n\n1. **Khởi động lại thiết bị (Restart):** Khởi động lại máy tính hoặc điện thoại của bạn. Thao tác này giúp làm mới các kết nối mạng đang bị treo.\n2. **Kiểm tra công tắc/cài đặt Wi-Fi:** \n   - Đảm bảo rằng Wi-Fi trên thiết bị của bạn đã được **Bật (On)**.\n   - Kiểm tra xem máy có đang ở **Chế độ máy bay (Airplane Mode)** hay không.\n3. **Quên mạng và kết nối lại (Forget Network):** \n   - Vào cài đặt Wi-Fi, chọn mạng bạn đang muốn kết nối và chọn \"Quên mạng này\" (Forget Network).\n   - Sau đó, nhập lại mật khẩu chính xác và kết nối lại.\n4. **Khởi động lại bộ định tuyến (Router/Modem):** Rút nguồn của router/modem Wi-Fi, chờ khoảng 30 giây đến 1 phút rồi cắm điện lại.\n5. **Kiểm tra trên thiết bị khác:** Thử kết nối một thiết bị khác (như điện thoại) vào cùng mạng Wi-Fi đó xem có vào được mạng không, để xác định lỗi do thiết bị của bạn hay do đường truyền Internet/Router.\n\nNếu bạn đã thử các bước trên mà vẫn không thể kết nối, hãy cho tôi biết (hoặc cung cấp mã nhân viên/mã người dùng và mô tả chi tiết nếu bạn cần tôi **tạo ticket hỗ trợ kỹ thuật IT** cho sự cố này nhé).",
-    "latency_ms": 3547.42
+    "output": "Chào bạn, khi gặp sự cố không thể kết nối Wi-Fi, bạn có thể thực hiện theo các bước kiểm tra cơ bản sau đây để khắc phục nhanh chóng:\n\n1. **Kiểm tra thiết bị phát Wi-Fi (Router/Modem):**\n   - Đảm bảo đèn tín hiệu trên router vẫn sáng bình thường.\n   - Thử **khởi động lại** (tắt nguồn, đợi khoảng 30 giây rồi bật lại) router và modem của bạn.\n\n2. **Kiểm tra thiết bị cá nhân (Laptop/Điện thoại):**\n   - Đảm bảo tính năng Wi-Fi trên thiết bị của bạn đã được bật và chế độ máy bay (Airplane Mode) đã được tắt.\n   - Thử ngắt kết nối (Forget Network) mạng Wi-Fi hiện tại và tiến hành kết nối lại bằng cách nhập lại mật khẩu chính xác.\n   - Thử kết nối thiết bị của bạn với một mạng Wi-Fi khác (hoặc phát 4G từ điện thoại) để xác định xem lỗi xuất phát từ thiết bị hay từ mạng Wi-Fi.\n\n3. **Kiểm tra cấu hình IP (đối với Windows/Mac):**\n   - Đảm bảo thiết bị của bạn được cấu hình nhận địa chỉ IP tự động (DHCP).\n\nNếu bạn đã thử tất cả các bước trên nhưng vẫn không thể kết nối hoặc đây là mạng Wi-Fi của công ty/tòa nhà, vui lòng cung cấp thêm thông tin (tên thiết bị, hệ điều hành, thông báo lỗi nếu có) hoặc cho tôi biết nếu bạn cần **tạo một ticket hỗ trợ IT** để kỹ thuật viên kiểm tra trực tiếp nhé!",
+    "latency_ms": 4018.6
   },
   {
     "step": 1,
@@ -56,7 +56,7 @@ Dán 1 đoạn trích xuất log tiêu biểu từ file `docs/trace_waterfall.js
         "assigned_to": "IT Support Team"
       }
     },
-    "latency_ms": 2902.94
+    "latency_ms": 1186.65
   },
   {
     "step": 2,
@@ -71,16 +71,16 @@ Dán 1 đoạn trích xuất log tiêu biểu từ file `docs/trace_waterfall.js
     "query": "Tôi không thể đăng nhập vào VPN của công ty. Hãy tạo một yêu cầu hỗ trợ IT cho tôi.",
     "action_type": "FINAL_ANSWER",
     "thought": "Gemini phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
-    "output": "Để tôi có thể tạo yêu cầu hỗ trợ (ticket) giúp bạn, vui lòng cung cấp thêm **mã nhân viên (user_id)** của bạn nhé. \n\nVí dụ: `USR001`, `USR123`,...",
-    "latency_ms": 3039.14
+    "output": "Để tạo yêu cầu hỗ trợ IT (ticket) giúp bạn, tôi cần thêm một vài thông tin. Vui lòng cung cấp cho tôi:\n\n1. **Mã người dùng (User ID)** của bạn (ví dụ: `USR001`).\n2. **Tên đăng nhập** hoặc email công ty mà bạn đang dùng để kết nối VPN.\n3. Thông tin chi tiết hơn nếu có (ví dụ: bạn có nhận được thông báo lỗi cụ thể nào không?).\n\nNgay khi nhận được thông tin từ bạn, tôi sẽ tiến hành tạo ticket hỗ trợ ngay lập tức!",
+    "latency_ms": 1613.52
   },
   {
     "step": 1,
     "query": "Tôi không thể đăng nhập vào VPN. Hãy kiểm tra xem tài khoản của tôi có đang bị khóa hoặc có ticket nào liên quan đến sự cố này không. Nếu tài khoản bình thường và chưa có ticket đang xử lý, hãy tạo một ticket hỗ trợ IT mới cho tôi.",
     "action_type": "FINAL_ANSWER",
     "thought": "Gemini phản hồi trực tiếp bằng văn bản (không cần gọi công cụ).",
-    "output": "Chào bạn, để tôi có thể kiểm tra trạng thái tài khoản, tra cứu ticket hiện tại và tạo ticket mới cho bạn, bạn vui lòng cung cấp cho tôi **Mã nhân viên (User ID)** của bạn nhé!",
-    "latency_ms": 2146.21
+    "output": "Chào bạn, để tôi có thể hỗ trợ bạn kiểm tra thông tin và tạo ticket, vui lòng cho tôi biết **Mã nhân viên / Mã người dùng (User ID)** của bạn nhé.",
+    "latency_ms": 1399.28
   },
   {
     "step": 1,
@@ -94,7 +94,7 @@ Dán 1 đoạn trích xuất log tiêu biểu từ file `docs/trace_waterfall.js
       "status": "NOT_FOUND",
       "message": "Không tìm thấy ticket có mã 'INC9999999'"
     },
-    "latency_ms": 2029.6
+    "latency_ms": 1180.05
   },
   {
     "step": 2,
@@ -108,36 +108,22 @@ Dán 1 đoạn trích xuất log tiêu biểu từ file `docs/trace_waterfall.js
     "step": 1,
     "query": "Tôi không thể đăng nhập vào VPN. Hãy kiểm tra xem đã có ticket nào đang xử lý cho sự cố này chưa. Nếu chưa có, hãy tạo một ticket mới, đây là ID của tôi: USR001.",
     "action_type": "TOOL_EXECUTION",
-    "tool_name": "create_ticket",
+    "tool_name": "ticket_query",
     "arguments": {
-      "description": "Người dùng không thể đăng nhập vào VPN cần hỗ trợ kỹ thuật.",
-      "priority": "MEDIUM",
-      "user_id": "USR001",
-      "issue_type": "vpn"
+      "ticket_id": "USR001"
     },
     "observation": {
-      "status": "SUCCESS",
-      "ticket_id": "INC2026004",
-      "data": {
-        "ticket_id": "INC2026004",
-        "user_id": "USR001",
-        "issue_type": "vpn",
-        "description": "Người dùng không thể đăng nhập vào VPN cần hỗ trợ kỹ thuật.",
-        "status": "OPEN",
-        "priority": "MEDIUM",
-        "created_at": "2026-09-13 14:00",
-        "assigned_to": "IT Service Desk"
-      },
-      "message": "Tạo ticket thành công cho người dùng USR001. Mã ticket: INC2026004."
+      "status": "NOT_FOUND",
+      "message": "Không tìm thấy ticket có mã 'USR001'"
     },
-    "latency_ms": 5799.66
+    "latency_ms": 1532.92
   },
   {
     "step": 2,
     "query": "Tôi không thể đăng nhập vào VPN. Hãy kiểm tra xem đã có ticket nào đang xử lý cho sự cố này chưa. Nếu chưa có, hãy tạo một ticket mới, đây là ID của tôi: USR001.",
     "action_type": "FINAL_ANSWER",
     "thought": "Tổng hợp kết quả từ MCP Server thành công.",
-    "output": "Đã tạo ticket hỗ trợ IT thành công. Mã ticket: INC2026004. Loại sự cố: . Mức độ ưu tiên: . Trạng thái: SUCCESS.",
+    "output": "Không tìm thấy ticket có mã 'USR001'",
     "latency_ms": 10.0
   }
 ]
